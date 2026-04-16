@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>todo list</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        #container {
+            width: 400px;
+            padding: 25px;
+            background: white;
+            border-radius: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+            letter-spacing: 1px;
+            text-align: center;
+        }
+
+        #box {
+            width: 65%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        #box:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
+        }
+
+        #btnclick {
+            padding: 10px 15px;
+            border: none;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-left: 5px;
+            transition: 0.3s;
+        }
+
+        #btnclick:hover {
+            background: #5a67d8;
+            transform: scale(1.05);
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        li {
+            background: #f7f9fc;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: 0.3s;
+        }
+
+
+        li:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        li span {
+            flex: 1;
+            text-align: left;
+            font-size: 16px;
+        }
+
+        button {
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-left: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        /* Edit button */
+        button:nth-child(2) {
+            background: #f6ad55;
+            color: white;
+        }
+
+        button:nth-child(2):hover {
+            background: #dd8a2f;
+        }
+
+        /* Delete button */
+        button:nth-child(3) {
+            background: #e53e3e;
+            color: white;
+        }
+
+        button:nth-child(3):hover {
+            background: #c53030;
+        }
+
+        /* Completed task style */
+        li span[style*="line-through"] {
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        <h1>TODO LIST</h1>
+        <input type="text" id="box" placeholder="ENTER A TASK....">
+        <button id="btnclick">ADD</button>
+        <ul id="ullist"></ul>
+    </div>
+
+    <script>
+
+        let inputbox = document.getElementById("box");
+        let taskbtn = document.getElementById("btnclick");
+        let listitem = document.getElementById("ullist");
+
+        let todos = [];
+
+        window.onload = () => {
+            try{
+            todos = JSON.parse(localStorage.getItem("todos")) || [];
+            } catch (e){
+                todos=[];
+            }
+            todos.forEach(todo => addtodo(todo));
+        }
+
+        taskbtn.addEventListener("click", () => {
+            let value = inputbox.value.trim();
+            if (value === "") return;
+            todos.push(value);
+            saveData();
+            addtodo(value);
+            inputbox.value = "";
+        })
+                    
+
+
+        function addtodo(todo) {
+            let point = document.createElement("li");
+
+            let text = document.createElement("span");
+            text.innerText = todo;
+            point.appendChild(text);
+            listitem.appendChild(point);
+
+            text.addEventListener('click', () => {
+                text.style.textDecoration = "line-through";
+            })
+
+            text.addEventListener("dblclick", () => {
+                text.style.textDecoration = "none";
+            })
+
+
+            let editbtn = document.createElement("button");
+            editbtn.innerText = "Edit";
+
+            editbtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+
+                let newText = prompt("Edit your task:", text.innerText);
+
+                if (newText !== null && newText.trim() !== "") {
+                    let index = todos.indexOf(text.innerText);
+                    todos[index] = newText.trim();
+                    text.innerText = newText.trim();
+                    saveData();
+                }
+            });
+
+            point.appendChild(editbtn);
+
+
+            let delbtn = document.createElement("button")
+            delbtn.innerText = "Delete";
+
+            delbtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                let index = todos.indexOf(text.innerText);
+                todos.splice(index, 1);
+                point.remove();
+                saveData();
+            })
+
+
+            point.appendChild(delbtn);
+        }
+
+        function saveData() {
+            localStorage.setItem("todos", JSON.stringify(todos));
+        }
+
+
+        
+
+    </script>
+
+</body>
+
+</html>
